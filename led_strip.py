@@ -1,14 +1,14 @@
-import RPi.GPIO
+from rpi_hardware_pwm import HardwarePWM
 
 class LedStrip:
-    def __init__(self, pin):
-        self.pin = pin
+    def __init__(self):
+        self.pwm = HardwarePWM(0, hz=10000) # 0 for GPIO18
 
     def ledOn(self):
-        pass
+        self.pwm.start(100)
 
     def ledOff(self):
-        pass
+        self.pwm.stop()
 
     def ledPwm(self, dt):
-        pass
+        self.pwm.start(dt)
