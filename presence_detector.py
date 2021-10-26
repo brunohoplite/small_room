@@ -3,6 +3,10 @@ import RPi.GPIO as gpio
 import time
 from enum import IntEnum
 
+detectedPeriod = 10
+waitPeriod = 10
+
+
 class PirState(IntEnum):
     IDLE = 0
     DETECTED = 1
@@ -25,11 +29,11 @@ class Pir:
                 self.startTime = time.monotonic()
                 self.pirState = PirState.DETECTED
         elif self.pirState == PirState.DETECTED:
-            if (time.monotonic() - self.startTime) >= 10:
+            if (time.monotonic() - self.startTime) >= detectedPeriod:
                 self.led.ledOff()
                 self.startTime = time.monotonic()
                 self.pirState = PirState.WAIT
         elif self.pirState == PirState.WAIT:
-            if (time.monotonic() - self.startTime) >= 10:
+            if (time.monotonic() - self.startTime) >= waitPeriod:
                 self.startTime = time.monotonic()
                 self.pirState = PirState.IDLE
