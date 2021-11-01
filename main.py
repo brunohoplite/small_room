@@ -1,6 +1,6 @@
-from presence_detector import Pir
+from control_box import ControlBox
 
 if __name__ == '__main__':
-    pir = Pir(23)
+    box = ControlBox(detectPin=23, brokerIp="192.168.2.1")
     while(True):
-        pir.poll()
+        box.run()
