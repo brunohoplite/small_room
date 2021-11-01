@@ -2,7 +2,7 @@ from rpi_hardware_pwm import HardwarePWM
 
 class LedStrip:
     def __init__(self):
-        self.pwm = HardwarePWM(0, hz=10000)  # 0 for GPIO18
+        self.pwm = HardwarePWM(0, hz=1000)  # 0 for GPIO18
 
     def ledOn(self):
         self.pwm.start(100)

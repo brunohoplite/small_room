@@ -12,22 +12,39 @@ class Mode(IntEnum):
     DETECTOR = 1
     DIMMER = 2
 
+def on_connect(client, userdata, flags, rc):
+    print("Connected with result code "+str(rc))
+    client.subscribe(topic1)
+    client.subscribe(topic2)
+
+def on_message(client, userdata, msg):
+    print("Topic:  " + msg.topic)
+    if msg.topic == topic1:
+        newCommand = str(msg.payload.decode())
+        print(newCommand)
+        if newCommand == 'DETECTOR' or newCommand == 'DIMMER':
+            userdata.processModeCommand(newCommand)
+        else:
+            print("Bad topic")
+
+    elif msg.topic == topic2:
+        if userdata.mode == Mode.DIMMER:
+            newBrightness = int(msg.payload.decode())
+            userdata.processDimmerCommand(newBrightness)
+        else:
+            print("Cannot change brightness. Switch to dimmer mode.")
 
 class ControlBox:
     def __init__(self, detectPin, brokerIp):
         self.led = LedStrip()
         self.pir = Pir(detectPin, self.led)
         self.mode = Mode.DETECTOR
-        self.brightness = 20
-        self.mqttClient = mqtt.client()
-        self.mqttClient.connect(brokerIp, userData=self)
-        self.mqttClient.on_connect = self.on_connect
-        self.mqttClient.on_message = self.on_message
-
-    def on_connect(client, userdata, flags, rc):
-        print("Connected with result code "+str(rc))
-        client.subscribe(topic1)
-        client.subscribe(topic2)
+        self.brightness = 3
+        self.mqttClient = mqtt.Client()
+        self.mqttClient.user_data_set(self)
+        self.mqttClient.on_connect = on_connect
+        self.mqttClient.on_message = on_message
+        self.mqttClient.connect(brokerIp)
 
     def processDimmerCommand(self, newBrightness):
         if newBrightness < 0:
@@ -38,26 +55,12 @@ class ControlBox:
         self.brightness = newBrightness
         self.led.ledPwm(newBrightness)
 
-    def processModeMsg(self, newMode):
-        self.mode = newMode
-        if self.mode == Mode.DIMMER:
+    def processModeCommand(self, newMode):
+        if newMode == 'DIMMER':
+            self.mode = Mode.DIMMER
             self.led.ledPwm(self.brightness)
-
-    def on_message(client, userdata, msg):
-        print(msg.topic + " " + str(msg.payload))
-        if msg.topic == topic1:
-            newCommand = msg.payload
-            if newCommand == Mode.DETECTOR.name or newCommand == Mode.BRIGHTNESS.name:
-                userdata.processModeCommand(newCommand)
-            else:
-                print("Bad topic")
-
-        elif msg.topic == topic2:
-            if userdata.mode == Mode.DIMMER:
-                newBrightness = msg.payload
-                userdata.processDimmerCommand(newBrightness)
-            else:
-                print("Cannot change brightness. Switch to dimmer mode.")
+        elif newMode == 'DETECTOR':
+            self.mode = Mode.DETECTOR
 
     def run(self):
         if self.mode == Mode.DETECTOR:
