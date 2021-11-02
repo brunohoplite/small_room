@@ -39,7 +39,7 @@ class ControlBox:
         self.led = LedStrip()
         self.pir = Pir(detectPin, self.led)
         self.mode = Mode.DETECTOR
-        self.brightness = 3
+        self.brightness = 0
         self.mqttClient = mqtt.Client()
         self.mqttClient.user_data_set(self)
         self.mqttClient.on_connect = on_connect
@@ -61,6 +61,8 @@ class ControlBox:
             self.led.ledPwm(self.brightness)
         elif newMode == 'DETECTOR':
             self.mode = Mode.DETECTOR
+            self.led.ledOff()
+            self.pir.resetState()
 
     def run(self):
         if self.mode == Mode.DETECTOR:

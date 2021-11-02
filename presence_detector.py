@@ -3,7 +3,7 @@ import RPi.GPIO as gpio
 import time
 from enum import IntEnum
 
-detectedPeriod = 10
+detectedPeriod = 60
 waitPeriod = 10
 
 
@@ -15,12 +15,15 @@ class PirState(IntEnum):
 
 class Pir:
     def __init__(self, pin, ledStrip):
-        self.pin = pin # BCM pin numbering
+        self.pin = pin  # BCM pin numbering
         gpio.setmode(gpio.BCM)
         gpio.setup(self.pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
         self.startTime = 0
         self.pirState = PirState.IDLE
         self.led = ledStrip
+
+    def resetState(self):
+        self.pirState = PirState.IDLE
 
     def poll(self):
         if self.pirState == PirState.IDLE:
