@@ -1,3 +1,5 @@
+import time
+
 from presence_detector import Pir
 from led_strip import LedStrip
 import paho.mqtt.client as mqtt
@@ -44,7 +46,11 @@ class ControlBox:
         self.mqttClient.user_data_set(self)
         self.mqttClient.on_connect = on_connect
         self.mqttClient.on_message = on_message
-        self.mqttClient.connect(brokerIp)
+        try:
+            self.mqttClient.connect(brokerIp)
+        except:
+            time.sleep(5)
+            self.mqttClient.connect(brokerIp)
 
     def processDimmerCommand(self, newBrightness):
         if newBrightness < 0:
