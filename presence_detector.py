@@ -5,6 +5,7 @@ from enum import IntEnum
 
 detectedPeriod = 60
 waitPeriod = 10
+detectedPwm = 100
 
 
 class PirState(IntEnum):
@@ -28,7 +29,7 @@ class Pir:
     def poll(self):
         if self.pirState == PirState.IDLE:
             if gpio.input(self.pin) == gpio.HIGH:
-                self.led.ledPwm(25)
+                self.led.ledPwm(detectedPwm)
                 self.startTime = time.monotonic()
                 self.pirState = PirState.DETECTED
         elif self.pirState == PirState.DETECTED:
