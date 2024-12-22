@@ -1,43 +1,49 @@
-from led_strip import LedStrip
+from time import monotonic
+from  enum import Enum
 import RPi.GPIO as gpio
-import time
-from enum import IntEnum
-
-detectedPeriod = 60
-waitPeriod = 10
-detectedPwm = 100
+from led_strip import LedStrip
 
 
-class PirState(IntEnum):
+class State(Enum):
     IDLE = 0
     DETECTED = 1
     WAIT = 2
 
 
 class Pir:
-    def __init__(self, pin, ledStrip):
-        self.pin = pin  # BCM pin numbering
-        gpio.setmode(gpio.BCM)
-        gpio.setup(self.pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
-        self.startTime = 0
-        self.pirState = PirState.IDLE
-        self.led = ledStrip
+    DETECTED_PERIOD_S = 60
+    WAIT_PERIOD_S = 5
+    def __init__(self, pin: int, led_strip: LedStrip):
+        self.detect_pin = pin  # BCM pin numbering
+        self.start_time = 0
+        self.state = State.IDLE
+        self.led_strip = led_strip
+        self.__init_gpio()
 
-    def resetState(self):
-        self.pirState = PirState.IDLE
+    def reset(self):
+        self.state = State.IDLE
+        self.led_strip.turn_off()
 
     def poll(self):
-        if self.pirState == PirState.IDLE:
-            if gpio.input(self.pin) == gpio.HIGH:
-                self.led.ledPwm(detectedPwm)
-                self.startTime = time.monotonic()
-                self.pirState = PirState.DETECTED
-        elif self.pirState == PirState.DETECTED:
-            if (time.monotonic() - self.startTime) >= detectedPeriod:
-                self.led.ledOff()
-                self.startTime = time.monotonic()
-                self.pirState = PirState.WAIT
-        elif self.pirState == PirState.WAIT:
-            if (time.monotonic() - self.startTime) >= waitPeriod:
-                self.startTime = time.monotonic()
-                self.pirState = PirState.IDLE
+        match self.state:
+            case State.IDLE:
+                if gpio.input(self.detect_pin) == gpio.HIGH:
+                    self.led_strip.turn_on()
+                    self.start_time = monotonic()
+                    self.state = State.DETECTED
+            case State.DETECTED:
+                if gpio.input(self.detect_pin) == gpio.HIGH:
+                    self.start_time = monotonic()
+                    return
+                if (monotonic() - self.start_time) >= self.DETECTED_PERIOD_S:
+                    self.led_strip.turn_off()
+                    self.start_time = monotonic()
+                    self.state = State.WAIT
+            case State.WAIT:
+                if (monotonic() - self.start_time) >= self.WAIT_PERIOD_S:
+                    self.start_time = monotonic()
+                    self.state = State.IDLE
+
+    def __init_gpio(self):
+        gpio.setmode(gpio.BCM)
+        gpio.setup(self.detect_pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)

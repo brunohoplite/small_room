@@ -4,11 +4,11 @@ class LedStrip:
     def __init__(self):
         self.pwm = HardwarePWM(0, hz=1000)  # 0 for GPIO18
 
-    def ledOn(self):
+    def turn_on(self):
         self.pwm.start(100)
 
-    def ledOff(self):
+    def turn_off(self):
         self.pwm.stop()
 
-    def ledPwm(self, dt):
-        self.pwm.start(dt)
+    def set_pwm(self, duty_cycle: int):
+        self.pwm.start(duty_cycle)
