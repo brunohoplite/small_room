@@ -3,16 +3,18 @@ import time
 from presence_detector import Pir
 from led_strip import LedStrip
 import paho.mqtt.client as mqtt
-from enum import IntEnum
+from enum import Enum
 
 
 topic1 = "MODE"
 topic2 = "BRIGHTNESS"
 
 
-class Mode(IntEnum):
-    DETECTOR = 1
-    DIMMER = 2
+class Mode(str, Enum):
+    DETECTOR  = 'DETECTOR'
+    DIMMER    = 'DIMMER'
+    BREATHING = 'BREATHING'
+    BLINK     = 'BLINK'
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -59,16 +61,29 @@ class ControlBox:
             newBrightness = 100
 
         self.brightness = newBrightness
-        self.led.ledPwm(newBrightness)
+
+        if self.mode is Mode.DIMMER:
+            self.led.set_pwm(newBrightness)
 
     def processModeCommand(self, newMode):
         if newMode == 'DIMMER':
             self.mode = Mode.DIMMER
-            self.led.ledPwm(self.brightness)
+            self.led.set_pwm(self.brightness)
         elif newMode == 'DETECTOR':
             self.mode = Mode.DETECTOR
-            self.led.ledOff()
-            self.pir.resetState()
+            self.led.turn_off()
+            self.pir.reset()
+
+    def set_mode(self, new_mode: str) -> None:
+        if new_mode.lower is Mode.DETECTOR.lower():
+            self.mode = Mode.DETECTOR
+            self.pir.reset()
+            return
+
+        if new_mode.lower is Mode.DIMMER.lower():
+            self.mode = Mode.DIMMER
+            self.led.set_pwm(self.brightness)
+            return
 
     def run(self):
         if self.mode == Mode.DETECTOR:
