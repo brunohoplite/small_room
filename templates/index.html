@@ -4,10 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LED Controller</title>
+    <script>
+        // Function to handle form submission via AJAX
+        async function updateControlBox(event) {
+            event.preventDefault(); // Prevent form from refreshing the page
+
+            const brightness = document.getElementById("brightness").value;
+            const mode = document.getElementById("mode").value;
+
+            // Send data to the server via POST
+            const response = await fetch('/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `brightness=${brightness}&mode=${mode}`
+            });
+
+            if (response.ok) {
+                alert("LED settings updated successfully!");
+            } else {
+                alert("Failed to update LED settings.");
+            }
+        }
+    </script>
 </head>
 <body>
     <h1>LED Controller</h1>
-    <form method="post" action="/update">
+    <form onsubmit="updateControlBox(event)">
         <label for="brightness">Brightness:</label>
         <input type="range" id="brightness" name="brightness" min="0" max="100" value="0">
         <br><br>
