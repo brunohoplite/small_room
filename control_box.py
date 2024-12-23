@@ -75,12 +75,12 @@ class ControlBox:
             self.pir.reset()
 
     def set_mode(self, new_mode: str) -> None:
-        if new_mode.lower is Mode.DETECTOR.lower():
+        if new_mode.lower() == Mode.DETECTOR.lower():
             self.mode = Mode.DETECTOR
             self.pir.reset()
             return
 
-        if new_mode.lower is Mode.DIMMER.lower():
+        if new_mode.lower() == Mode.DIMMER.lower():
             self.mode = Mode.DIMMER
             self.led.set_pwm(self.brightness)
             return

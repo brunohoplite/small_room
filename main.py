@@ -23,8 +23,9 @@ if __name__ == '__main__':
         global brightness, mode
         brightness = int(request.form['brightness'])
         mode = request.form['mode']
-        box.processDimmerCommand(brightness)
+        print(f'Received mode: {mode}, brightness: {brightness}')
         box.set_mode(mode)
+        box.processDimmerCommand(brightness)
 
         return "OK", 200
 
