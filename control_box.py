@@ -44,6 +44,7 @@ class ControlBox:
         self.pir = Pir(detectPin, self.led)
         self.mode = Mode.DETECTOR
         self.brightness = 0
+        self.toggle = False
         self.mqttClient = mqtt.Client()
         self.mqttClient.user_data_set(self)
         self.mqttClient.on_connect = on_connect
@@ -85,8 +86,19 @@ class ControlBox:
             self.led.set_pwm(self.brightness)
             return
 
+        if new_mode.lower() == Mode.BLINK.lower():
+            self.mode = Mode.BLINK
+            self.led.set_pwm(self.brightness)
+            return
+
     def run(self):
         if self.mode == Mode.DETECTOR:
             self.pir.poll()
+        elif self.mode == Mode.BLINK:
+            if self.toggle:
+                self.led.turn_off()
+            else:
+                self.led.set_pwm(self.brightness)
+            self.toggle = not self.toggle
 
         self.mqttClient.loop(timeout=0.2)
