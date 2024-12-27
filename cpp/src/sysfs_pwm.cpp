@@ -34,12 +34,14 @@ void SysfsPwm::initialize(int frequency)
         throw std::runtime_error("Frequency should be greater than 0!");
     }
 
+    // Verify if pwm channel exists before exporting
+
     // Export the PWM chip
     writeToFile("/export", std::to_string(channel));
 
     // Give the kernel a few milliseconds to create the pwm channel
     // TODO: understand why this needs hacky wait!
-    sleep(1);
+    usleep(100000);
 
     // Write the PWM period
     unsigned int periodNs = SYSFS_PERIOD_S_TO_NS / frequency;

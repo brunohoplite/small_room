@@ -1,6 +1,7 @@
 #include <wiringPi.h>
 #include <iostream>
 #include <unistd.h>
+#include <cmath>
 #include "sysfs_pwm.hpp"
 
 #define OUTPUT_PIN 1  // Physical pin 12 (WiringPi pin 1)
@@ -8,8 +9,28 @@
 #define PWM_CHIP 0
 #define PWM_CHANNEL 0
 
+#define SECONDS_TO_USECOND (1000000)
+
+#define STEPS 100
+#define TIME_STEP (0.010)
+#define MAX_DT (100)
+
+int increasingDt[STEPS];
+int decreasingDt[STEPS];
+
+void breathingAnimation(void)
+{
+    for (int i = 0; i < STEPS; i++)
+    {
+        float brightness = (float)MAX_DT * (1.f - exp(-4.f * (float)i / (float)STEPS));
+        increasingDt[i] = (int)brightness;
+        decreasingDt[STEPS - i - 1] = (int)brightness;
+        std::cout << "Brightness " + std::to_string(i) + "with dt: " + std::to_string(brightness) << std::endl;
+    }
+}
 // Read input pin state
 // int buttonState = digitalRead(INPUT_PIN);
+
 
 int main() {
     try {
@@ -28,12 +49,28 @@ int main() {
         SysfsPwm sysfsPwm(PWM_CHIP, PWM_CHANNEL);
         sysfsPwm.initialize(1000);
         bool ledState = false;
+        bool increasing = true;
+        int stepIndex = 0;
+
+        breathingAnimation();
 
         while (true) {
+        #if BLINK
             ledState = !ledState;
             int dutyCycle = ledState ? 20 : 0;
             sysfsPwm.setDutyCycle(dutyCycle);
             sleep(1); // Debounce delay
+        #else
+            int newDt = increasing ? increasingDt[stepIndex] : decreasingDt[stepIndex];
+            sysfsPwm.setDutyCycle(newDt);
+            stepIndex++;
+            if (stepIndex >= STEPS)
+            {
+                increasing = !increasing;
+                stepIndex = 0;
+            }
+            usleep(TIME_STEP * SECONDS_TO_USECOND);
+        #endif
         }
     }
     catch (const std::exception& ex) {
