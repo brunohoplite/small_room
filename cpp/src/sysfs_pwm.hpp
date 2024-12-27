@@ -3,11 +3,14 @@
 
 class SysfsPwm {
     private:
-        std::string pwmChipPath;
-    
+        int chip;
+        int channel;
+        int period;
+        void writeToFile(const std::string& fileName, const std::string& value);
+
     public:
-        SysfsPwm(const std::string& chipPath) : pwmChipPath(chipPath) {};
-        int initialize(unsigned int frequency); // Export and set period
-        int setDutyCycle(unsigned int dutyCycle); // Set duty-cycle and enable
+        SysfsPwm(int chip, int channel) : chip(chip), channel(channel) {};
+        int initialize(int frequency); // Export and set period
+        int setDutyCycle(int dutyCycle); // Set duty-cycle and enable
         void turnOff(void); // Disable
 };

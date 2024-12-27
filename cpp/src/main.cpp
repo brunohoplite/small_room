@@ -1,8 +1,12 @@
 #include <wiringPi.h>
 #include <iostream>
+#include <unistd.h>
+#include "sysfs_pwm.hpp"
 
-#define OUTPUT_PIN 1  // (WiringPi pin 1)
-#define INPUT_PIN 4   // (WiringPi pin 4)
+#define OUTPUT_PIN 1  // Physical pin 12 (WiringPi pin 1)
+#define INPUT_PIN 4   // Physical pin 16 (WiringPi pin 4)
+#define PWM_CHIP 0
+#define PWM_CHANNEL 0
 
 int main() {
     // Initialize wiringPi
@@ -12,11 +16,13 @@ int main() {
     }
 
     // Set up GPIO pins
-    pinMode(OUTPUT_PIN, OUTPUT);
+    //pinMode(OUTPUT_PIN, OUTPUT);
     pinMode(INPUT_PIN, INPUT);
 
     std::cout << "Blinking LED strip!!!" << std::endl;
 
+    SysfsPwm sysfsPwm(PWM_CHIP, PWM_CHANNEL);
+    sysfsPwm.initialize(1000);
     bool ledState = false;
 
     while (true) {
@@ -24,8 +30,10 @@ int main() {
         // int buttonState = digitalRead(INPUT_PIN);
 
         ledState = !ledState;
-        digitalWrite(OUTPUT_PIN, ledState ? HIGH : LOW);
-        delay(250); // Debounce delay
+        //digitalWrite(OUTPUT_PIN, ledState ? HIGH : LOW);
+        int dutyCycle = ledState ? 50 : 0;
+        sysfsPwm.setDutyCycle(dutyCycle);
+        sleep(1); // Debounce delay
     }
 
     return 0;
