@@ -8,32 +8,37 @@
 #define PWM_CHIP 0
 #define PWM_CHANNEL 0
 
+// Read input pin state
+// int buttonState = digitalRead(INPUT_PIN);
+
 int main() {
-    // Initialize wiringPi
-    if (wiringPiSetup() == -1) {
-        std::cerr << "Failed to initialize wiringPi" << std::endl;
-        return 1;
+    try {
+        // Initialize wiringPi
+        if (wiringPiSetup() == -1) {
+            std::cerr << "Failed to initialize wiringPi" << std::endl;
+            return 1;
+        }
+
+        // Set up GPIO pins
+        //pinMode(OUTPUT_PIN, OUTPUT);
+        pinMode(INPUT_PIN, INPUT);
+
+        std::cout << "Blinking LED strip!!!" << std::endl;
+
+        SysfsPwm sysfsPwm(PWM_CHIP, PWM_CHANNEL);
+        sysfsPwm.initialize(1000);
+        bool ledState = false;
+
+        while (true) {
+            ledState = !ledState;
+            int dutyCycle = ledState ? 20 : 0;
+            sysfsPwm.setDutyCycle(dutyCycle);
+            sleep(1); // Debounce delay
+        }
     }
-
-    // Set up GPIO pins
-    //pinMode(OUTPUT_PIN, OUTPUT);
-    pinMode(INPUT_PIN, INPUT);
-
-    std::cout << "Blinking LED strip!!!" << std::endl;
-
-    SysfsPwm sysfsPwm(PWM_CHIP, PWM_CHANNEL);
-    sysfsPwm.initialize(1000);
-    bool ledState = false;
-
-    while (true) {
-        // Read input pin state
-        // int buttonState = digitalRead(INPUT_PIN);
-
-        ledState = !ledState;
-        //digitalWrite(OUTPUT_PIN, ledState ? HIGH : LOW);
-        int dutyCycle = ledState ? 50 : 0;
-        sysfsPwm.setDutyCycle(dutyCycle);
-        sleep(1); // Debounce delay
+    catch (const std::exception& ex) {
+        fprintf(stderr, "Error: %s\n", ex.what());
+        return 1;
     }
 
     return 0;

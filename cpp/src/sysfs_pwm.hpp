@@ -13,4 +13,6 @@ class SysfsPwm {
         int initialize(int frequency); // Export and set period
         int setDutyCycle(int dutyCycle); // Set duty-cycle and enable
         void turnOff(void); // Disable
+        void unexport(void);
+        ~SysfsPwm();
 };

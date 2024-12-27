@@ -23,6 +23,11 @@ void SysfsPwm::writeToFile(const std::string& fileName, const std::string& value
     close(fd);
 }
 
+SysfsPwm::~SysfsPwm()
+{
+    unexport();
+}
+
 int SysfsPwm::initialize(int frequency)
 {
     if (frequency <= 0) {
@@ -42,6 +47,11 @@ int SysfsPwm::initialize(int frequency)
     period = periodNs;
 
     return 0;
+}
+
+void SysfsPwm::unexport(void)
+{
+    writeToFile("/unexport", std::to_string(channel));
 }
 
 int SysfsPwm::setDutyCycle(int dutyCycle)
