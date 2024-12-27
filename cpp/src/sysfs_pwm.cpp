@@ -28,7 +28,7 @@ SysfsPwm::~SysfsPwm()
     unexport();
 }
 
-int SysfsPwm::initialize(int frequency)
+void SysfsPwm::initialize(int frequency)
 {
     if (frequency <= 0) {
         throw std::runtime_error("Frequency should be greater than 0!");
@@ -38,6 +38,7 @@ int SysfsPwm::initialize(int frequency)
     writeToFile("/export", std::to_string(channel));
 
     // Give the kernel a few milliseconds to create the pwm channel
+    // TODO: understand why this needs hacky wait!
     sleep(1);
 
     // Write the PWM period
@@ -45,8 +46,6 @@ int SysfsPwm::initialize(int frequency)
     std::cout << "PWM with period " << periodNs << " ns" << std::endl;
     writeToFile("/pwm" + std::to_string(channel) + "/period", std::to_string(periodNs));
     period = periodNs;
-
-    return 0;
 }
 
 void SysfsPwm::unexport(void)
@@ -54,7 +53,7 @@ void SysfsPwm::unexport(void)
     writeToFile("/unexport", std::to_string(channel));
 }
 
-int SysfsPwm::setDutyCycle(int dutyCycle)
+void SysfsPwm::setDutyCycle(int dutyCycle)
 {
     if ((dutyCycle < 0) || (dutyCycle > 100)) {
         throw std::runtime_error("Duty cycle should be between 0 and 100");
@@ -69,6 +68,4 @@ int SysfsPwm::setDutyCycle(int dutyCycle)
     writeToFile("/pwm" + std::to_string(channel) + "/enable", std::string("1"));
 
     std::cout << "PWM on period " << onPeriod << " ns" << std::endl;
-
-    return 0;
 }

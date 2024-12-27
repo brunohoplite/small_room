@@ -10,8 +10,8 @@ class SysfsPwm {
 
     public:
         SysfsPwm(int chip, int channel) : chip(chip), channel(channel) {};
-        int initialize(int frequency); // Export and set period
-        int setDutyCycle(int dutyCycle); // Set duty-cycle and enable
+        void initialize(int frequency); // Export and set period
+        void setDutyCycle(int dutyCycle); // Set duty-cycle and enable
         void turnOff(void); // Disable
         void unexport(void);
         ~SysfsPwm();
