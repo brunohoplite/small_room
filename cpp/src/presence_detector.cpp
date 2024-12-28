@@ -4,19 +4,13 @@
 #define DETECTED_PERIOD_MS std::chrono::milliseconds(60000)
 #define WAIT_PERIOD_MS std::chrono::milliseconds(5000)
 
-PresenceDetector::PresenceDetector(int detectPin)
-{
-    detectPin_ = detectPin;
-    currentState = IDLE;
-}
-
 void PresenceDetector::poll(void)
 {
     switch (currentState)
     {
     case IDLE:
         if (isDetectPinAsserted()) {
-            // TODO: Turn on LED
+            ledStrip_.setDutyCycle(100);
             timer_.setDelay(DETECTED_PERIOD_MS);
             currentState = DETECTED;
         }
@@ -29,7 +23,7 @@ void PresenceDetector::poll(void)
         }
 
         if (timer_.hasElapsed()) {
-            // TODO: Turn off LED
+            ledStrip_.turnOff();
             timer_.setDelay(WAIT_PERIOD_MS);
             currentState = WAIT;
         }
@@ -48,7 +42,7 @@ void PresenceDetector::poll(void)
 
 void PresenceDetector::reset(void)
 {
-    // TODO: turn off LED
+    ledStrip_.turnOff();
     currentState = IDLE;
 }
 
