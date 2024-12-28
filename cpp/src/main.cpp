@@ -43,7 +43,6 @@ int main() {
 
         SysfsPwm sysfsPwm(PWM_CHIP, PWM_CHANNEL);
         sysfsPwm.initialize(1000);
-        bool ledState = false;
         bool increasing = true;
         int stepIndex = 0;
 

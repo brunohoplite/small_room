@@ -16,5 +16,12 @@ set(SOURCES
 # Add the executable
 add_executable(small_room ${SOURCES})
 
+# Add compiler flags
+target_compile_options(small_room PRIVATE
+    -Wall
+    -Wextra
+    -Werror
+)
+
 # Link with wiringPi library
 target_link_libraries(small_room wiringPi)
