@@ -74,6 +74,7 @@ class ControlBox:
     def run(self):
         if self.mode == Mode.DETECTOR:
             self.pir.poll()
+            sleep(0.1)
         elif self.mode == Mode.BLINK:
             if self.toggle:
                 self.led.turn_off()
@@ -91,3 +92,5 @@ class ControlBox:
                 self.breathing_index = 0
                 self.toggle = not self.toggle
             sleep(TIME_STEP)
+        else:
+            sleep(0.25)
