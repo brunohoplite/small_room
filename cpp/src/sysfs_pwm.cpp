@@ -68,6 +68,4 @@ void SysfsPwm::setDutyCycle(int dutyCycle)
 
     // Enable the pwm
     writeToFile("/pwm" + std::to_string(channel) + "/enable", std::string("1"));
-
-    std::cout << "PWM on period " << onPeriod << " ns" << std::endl;
 }

@@ -25,12 +25,8 @@ void breathingAnimation(void)
         float brightness = (float)MAX_DT * (1.f - exp(-4.f * (float)i / (float)STEPS));
         increasingDt[i] = (int)brightness;
         decreasingDt[STEPS - i - 1] = (int)brightness;
-        std::cout << "Brightness " + std::to_string(i) + "with dt: " + std::to_string(brightness) << std::endl;
     }
 }
-// Read input pin state
-// int buttonState = digitalRead(INPUT_PIN);
-
 
 int main() {
     try {
@@ -40,8 +36,7 @@ int main() {
             return 1;
         }
 
-        // Set up GPIO pins
-        //pinMode(OUTPUT_PIN, OUTPUT);
+        // Set up GPIO pin
         pinMode(INPUT_PIN, INPUT);
 
         std::cout << "Blinking LED strip!!!" << std::endl;
@@ -55,12 +50,6 @@ int main() {
         breathingAnimation();
 
         while (true) {
-        #if BLINK
-            ledState = !ledState;
-            int dutyCycle = ledState ? 20 : 0;
-            sysfsPwm.setDutyCycle(dutyCycle);
-            sleep(1); // Debounce delay
-        #else
             int newDt = increasing ? increasingDt[stepIndex] : decreasingDt[stepIndex];
             sysfsPwm.setDutyCycle(newDt);
             stepIndex++;
@@ -70,7 +59,6 @@ int main() {
                 stepIndex = 0;
             }
             usleep(TIME_STEP * SECONDS_TO_USECOND);
-        #endif
         }
     }
     catch (const std::exception& ex) {
