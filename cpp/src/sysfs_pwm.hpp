@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 
+#pragma once
+
 class SysfsPwm {
     private:
         int chip;

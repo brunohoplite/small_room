@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <cmath>
 #include "sysfs_pwm.hpp"
+#include "presence_detector.hpp"
 
 #define OUTPUT_PIN 1  // Physical pin 12 (WiringPi pin 1)
 #define INPUT_PIN 4   // Physical pin 16 (WiringPi pin 4)
@@ -28,6 +29,20 @@ void breathingAnimation(void)
     }
 }
 
+void doBreathing(void)
+{
+    // static int stepIndex = 0;
+    // static bool increasing = true;
+    // int newDt = increasing ? increasingDt[stepIndex] : decreasingDt[stepIndex];
+    // sysfsPwm.setDutyCycle(newDt);
+    // stepIndex++;
+    // if (stepIndex >= STEPS)
+    // {
+    //     increasing = !increasing;
+    //     stepIndex = 0;
+    // }
+}
+
 int main() {
     try {
         // Initialize wiringPi
@@ -39,25 +54,15 @@ int main() {
         // Set up GPIO pin
         pinMode(INPUT_PIN, INPUT);
 
-        std::cout << "Blinking LED strip!!!" << std::endl;
+        std::cout << "Starting small room LED strip controller!" << std::endl;
 
         SysfsPwm sysfsPwm(PWM_CHIP, PWM_CHANNEL);
         sysfsPwm.initialize(1000);
-        bool increasing = true;
-        int stepIndex = 0;
-
-        breathingAnimation();
+        PresenceDetector presenceDetector(sysfsPwm, INPUT_PIN);
 
         while (true) {
-            int newDt = increasing ? increasingDt[stepIndex] : decreasingDt[stepIndex];
-            sysfsPwm.setDutyCycle(newDt);
-            stepIndex++;
-            if (stepIndex >= STEPS)
-            {
-                increasing = !increasing;
-                stepIndex = 0;
-            }
-            usleep(TIME_STEP * SECONDS_TO_USECOND);
+            presenceDetector.poll();
+            usleep(0.1f * SECONDS_TO_USECOND);
         }
     }
     catch (const std::exception& ex) {

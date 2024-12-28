@@ -16,8 +16,7 @@ class PresenceDetector {
 
     public:
         PresenceDetector(SysfsPwm& ledStrip, int detectPin)
-            : ledStrip_(ledStrip), detectPin_(detectPin), currentState(IDLE) {}
-        ~PresenceDetector();
+            : ledStrip_(ledStrip), detectPin_(detectPin) { reset(); }
         void poll(void);
         void reset(void);
 };
