@@ -42,7 +42,6 @@ class Pir:
             return
         if self.state == State.WAIT:
             if (monotonic() - self.start_time) >= self.WAIT_PERIOD_S:
-                self.start_time = monotonic()
                 self.state = State.IDLE
 
     def __init_gpio(self):

@@ -11,6 +11,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(SOURCES
     src/main.cpp
     src/sysfs_pwm.cpp
+    src/control_box.cpp
+    src/presence_detector.cpp
+    src/timer.hpp
 )
 
 # Add the executable
