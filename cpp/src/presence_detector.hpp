@@ -2,8 +2,11 @@
 #include "sysfs_pwm.hpp"
 
 class PresenceDetector {
-    private:
+    protected:
         SysfsPwm& ledStrip_;
+        void reset(void);
+
+    private:
         Timer timer_; // Gets instantiated when PresenceDetector is instantiated (default constructor is called)
         int detectPin_;
         typedef enum {
@@ -18,5 +21,4 @@ class PresenceDetector {
         PresenceDetector(SysfsPwm& ledStrip, int detectPin)
             : ledStrip_(ledStrip), detectPin_(detectPin) { reset(); }
         void poll(void);
-        void reset(void);
 };

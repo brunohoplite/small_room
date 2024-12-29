@@ -1,7 +1,6 @@
 #include <wiringPi.h>
 #include <iostream>
 #include <unistd.h>
-#include <cmath>
 #include "sysfs_pwm.hpp"
 #include "presence_detector.hpp"
 
@@ -12,36 +11,6 @@
 
 #define SECONDS_TO_USECOND (1000000)
 
-#define STEPS 100
-#define TIME_STEP (0.010)
-#define MAX_DT (100)
-
-int increasingDt[STEPS];
-int decreasingDt[STEPS];
-
-void breathingAnimation(void)
-{
-    for (int i = 0; i < STEPS; i++)
-    {
-        float brightness = (float)MAX_DT * (1.f - exp(-4.f * (float)i / (float)STEPS));
-        increasingDt[i] = (int)brightness;
-        decreasingDt[STEPS - i - 1] = (int)brightness;
-    }
-}
-
-void doBreathing(void)
-{
-    // static int stepIndex = 0;
-    // static bool increasing = true;
-    // int newDt = increasing ? increasingDt[stepIndex] : decreasingDt[stepIndex];
-    // sysfsPwm.setDutyCycle(newDt);
-    // stepIndex++;
-    // if (stepIndex >= STEPS)
-    // {
-    //     increasing = !increasing;
-    //     stepIndex = 0;
-    // }
-}
 
 int main() {
     try {
