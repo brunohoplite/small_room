@@ -9,7 +9,7 @@ def run_flask(app):
     app.run(host='0.0.0.0', port=5000)
 
 if __name__ == '__main__':
-    box = ControlBox(detectPin=23, brokerIp="127.0.0.1")
+    box = ControlBox(detectPin=23)
 
     # Flask app
     app = Flask(__name__)
