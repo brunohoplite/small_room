@@ -1,8 +1,7 @@
 #include <wiringPi.h>
 #include <iostream>
-#include <unistd.h>
 #include "sysfs_pwm.hpp"
-#include "presence_detector.hpp"
+#include "control_box.hpp"
 
 #define OUTPUT_PIN 1  // Physical pin 12 (WiringPi pin 1)
 #define INPUT_PIN 4   // Physical pin 16 (WiringPi pin 4)
@@ -27,11 +26,25 @@ int main() {
 
         SysfsPwm sysfsPwm(PWM_CHIP, PWM_CHANNEL);
         sysfsPwm.initialize(1000);
-        PresenceDetector presenceDetector(sysfsPwm, INPUT_PIN);
+        ControlBox controlBox(sysfsPwm, INPUT_PIN);
+        #if DEBUG // TODO: remove eventually
+        const ControlBox::Mode modes[] = {ControlBox::Mode::BLINK, ControlBox::Mode::BREATH, ControlBox::Mode::DIM, ControlBox::Mode::DETECT};
+        int index = 0;
+        Timer myTimer(std::chrono::milliseconds(5000));
+        controlBox.setBrightness(75);
+        #endif
 
         while (true) {
-            presenceDetector.poll();
-            usleep(0.1f * SECONDS_TO_USECOND);
+            controlBox.doMode();
+            #if DEBUG
+            if (myTimer.hasElapsed()) {
+                myTimer.reset();
+                ControlBox::Mode newMode = modes[index];
+                index++;
+                if (index >= 4) index = 0;
+                controlBox.setMode(newMode);
+            }
+            #endif
         }
     }
     catch (const std::exception& ex) {
