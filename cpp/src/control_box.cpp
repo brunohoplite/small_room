@@ -43,6 +43,7 @@ void ControlBox::doMode(void)
 
 void ControlBox::setMode(const Mode newMode)
 {
+    currentMode_ = newMode;
     switch (newMode)
     {
     case Mode::DETECT:
@@ -65,6 +66,7 @@ void ControlBox::setMode(const Mode newMode)
         break;
 
     default:
+        currentMode_ = Mode::DETECT;
         break;
     }
 }
