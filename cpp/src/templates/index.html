@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small room LED strip controller</title>
+    <script>
+        // Function to handle form submission via AJAX
+        async function updateControlBox(event) {
+            event.preventDefault(); // Prevent form from refreshing the page
+
+            const brightness = document.getElementById("brightness").value;
+            const mode = document.getElementById("mode").value;
+            var bodyData = {
+                "brightness" : brightness,
+                "mode" : mode
+            };
+
+            // Send data to the server via POST
+            fetch('/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bodyData)
+            })
+            .then(response => {
+                if (response.ok) {
+                alert("LED settings updated successfully!");
+                } else {
+                    alert("Failed to update LED settings.");
+                }
+            })
+            .catch(error => console.error('Error: ', error));
+        }
+    </script>
+</head>
+<body>
+    <h1>Small room LED strip controller</h1>
+    <form onsubmit="updateControlBox(event)">
+        <label for="brightness">Brightness:</label>
+        <input type="range" id="brightness" name="brightness" min="0" max="100" value="0">
+        <br><br>
+        <label for="mode">Mode:</label>
+        <select id="mode" name="mode">
+            <option value="Detector">Detector</option>
+            <option value="Dimmer">Dimmer</option>
+            <option value="Blink">Blink</option>
+            <option value="Breath">Breath</option>
+        </select>
+        <br><br>
+        <button type="submit">Update</button>
+    </form>
+</body>
+</html>

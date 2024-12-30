@@ -1,6 +1,13 @@
 #include <unistd.h>
 #include <cmath>
+#include <unordered_map>
 #include "control_box.hpp"
+
+
+#define DETECT_POLLING_PERIOD_US 100000
+#define DIM_POLLING_PERIOD_US    250000
+#define BREATH_POLLING_PERIOD_US 10000
+#define BLINK_POLLING_PERIOD_US  1000000
 
 
 ControlBox::ControlBox(SysfsPwm& ledStrip, int detectPin)
@@ -19,21 +26,21 @@ void ControlBox::doMode(void)
     {
     case Mode::DETECT:
         poll();
-        usleep(100000);
+        usleep(DETECT_POLLING_PERIOD_US);
         break;
 
     case Mode::DIM:
-        usleep(250000);
+        usleep(DIM_POLLING_PERIOD_US);
         break;
 
     case Mode::BREATH:
         doBreath();
-        usleep(10000);
+        usleep(BREATH_POLLING_PERIOD_US);
         break;
 
     case Mode::BLINK:
         doBlink();
-        usleep(1000000);
+        usleep(BLINK_POLLING_PERIOD_US);
         break;
 
     default:
@@ -41,8 +48,9 @@ void ControlBox::doMode(void)
     }
 }
 
-void ControlBox::setMode(const Mode newMode)
+void ControlBox::setMode(const std::string& modeStr)
 {
+    ControlBox::Mode newMode = stringToMode(modeStr);
     currentMode_ = newMode;
     switch (newMode)
     {
@@ -99,7 +107,7 @@ void ControlBox::doBlink(void)
 
 void ControlBox::doBreath(void)
 {
-    int newDt = toggle_ ? increasingDt_[stepIndex_] : decreasingDt_[stepIndex_];
+    int newDt = toggle_ ? decreasingDt_[stepIndex_] : increasingDt_[stepIndex_];
     ledStrip_.setDutyCycle(newDt);
     stepIndex_++;
     if (stepIndex_ >= STEPS)
@@ -117,4 +125,21 @@ void ControlBox::prepareBreath(void)
         increasingDt_[i] = (int)brightness;
         decreasingDt_[STEPS - i - 1] = (int)brightness;
     }
+}
+
+ControlBox::Mode ControlBox::stringToMode(const std::string& modeStr)
+{
+    static std::unordered_map<std::string, Mode> map = {
+        {"Detector", Mode::DETECT},
+        {"Dimmer", Mode::DIM},
+        {"Blink", Mode::BLINK},
+        {"Breath", Mode::BREATH}
+   };
+
+   auto it = map.find(modeStr);
+   if (it == map.end()) {
+        throw std::invalid_argument("Invalid mode string: " + modeStr);
+   }
+
+   return it->second;
 }

@@ -26,5 +26,7 @@ target_compile_options(small_room PRIVATE
     -Werror
 )
 
+find_package(Crow)
+
 # Link with wiringPi library
-target_link_libraries(small_room wiringPi)
+target_link_libraries(small_room wiringPi Crow::Crow)

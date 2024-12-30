@@ -24,20 +24,14 @@ class ControlBox : public PresenceDetector {
         int increasingDt_[STEPS];
         int decreasingDt_[STEPS];
 
-        // enum class PollingPeriod {
-        //     DETECT = 100,
-        //     DIM = 250,
-        //     BREATH = 10,
-        //     BLINK = 1000,
-        // };
-
         void doBlink(void);
         void doBreath(void);
         void prepareBreath(void);
+        Mode stringToMode(const std::string& modeStr);
 
     public:
         ControlBox(SysfsPwm& ledStrip, int detectPin);
         void doMode(void);
-        void setMode(const Mode newMode);
+        void setMode(const std::string& modeStr);
         void setBrightness(int newBrightness);
 };
