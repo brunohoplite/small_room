@@ -24,13 +24,6 @@ class ControlBox : public PresenceDetector {
         int increasingDt_[STEPS];
         int decreasingDt_[STEPS];
 
-        // enum class PollingPeriod {
-        //     DETECT = 100,
-        //     DIM = 250,
-        //     BREATH = 10,
-        //     BLINK = 1000,
-        // };
-
         void doBlink(void);
         void doBreath(void);
         void prepareBreath(void);

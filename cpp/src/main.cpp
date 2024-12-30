@@ -72,10 +72,6 @@ int main() {
                 return crow::response(400);
             }
 
-            // if (!body["brightness"].is_int() || !body["mode"].is_string()) {
-            //     return crow::response(400, "Invalid data structure");
-            // }
-
             int newBrightness = body["brightness"].i();
             std::string newMode = body["mode"].s();
             std::cout << "New brightness: " << newBrightness << ", new mode: " << newMode << std::endl;

@@ -4,6 +4,12 @@
 #include "control_box.hpp"
 
 
+#define DETECT_POLLING_PERIOD_US 100000
+#define DIM_POLLING_PERIOD_US    250000
+#define BREATH_POLLING_PERIOD_US 10000
+#define BLINK_POLLING_PERIOD_US  1000000
+
+
 ControlBox::ControlBox(SysfsPwm& ledStrip, int detectPin)
 : PresenceDetector(ledStrip, detectPin)
 {
@@ -20,21 +26,21 @@ void ControlBox::doMode(void)
     {
     case Mode::DETECT:
         poll();
-        usleep(100000);
+        usleep(DETECT_POLLING_PERIOD_US);
         break;
 
     case Mode::DIM:
-        usleep(250000);
+        usleep(DIM_POLLING_PERIOD_US);
         break;
 
     case Mode::BREATH:
         doBreath();
-        usleep(10000);
+        usleep(BREATH_POLLING_PERIOD_US);
         break;
 
     case Mode::BLINK:
         doBlink();
-        usleep(1000000);
+        usleep(BLINK_POLLING_PERIOD_US);
         break;
 
     default:
