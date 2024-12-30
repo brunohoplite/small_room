@@ -34,10 +34,11 @@ class ControlBox : public PresenceDetector {
         void doBlink(void);
         void doBreath(void);
         void prepareBreath(void);
+        Mode stringToMode(const std::string& modeStr);
 
     public:
         ControlBox(SysfsPwm& ledStrip, int detectPin);
         void doMode(void);
-        void setMode(const Mode newMode);
+        void setMode(const std::string& modeStr);
         void setBrightness(int newBrightness);
 };

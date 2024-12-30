@@ -9,12 +9,20 @@
 #define INPUT_PIN 4   // Physical pin 16 (WiringPi pin 4)
 #define PWM_CHIP 0
 #define PWM_CHANNEL 0
+#define PWM_FREQUENCY 1000
 
 #define SECONDS_TO_USECOND (1000000)
 
 
 crow::SimpleApp app;
+SysfsPwm sysfsPwm(PWM_CHIP, PWM_CHANNEL, PWM_FREQUENCY);
+ControlBox controlBox(sysfsPwm, INPUT_PIN);
 
+void controlBoxThread(void) {
+    while (true) {
+        controlBox.doMode();
+    }
+}
 
 // Function to load HTML file content
 std::string loadHTML(const std::string& filepath) {
@@ -49,36 +57,39 @@ int main() {
 
         std::cout << "Starting small room LED strip controller!" << std::endl;
 
-        SysfsPwm sysfsPwm(PWM_CHIP, PWM_CHANNEL);
-        sysfsPwm.initialize(1000);
-        ControlBox controlBox(sysfsPwm, INPUT_PIN);
+        // Start a thread for LED control
+        std::thread controlBoxThreadRunner(controlBoxThread);
 
         // Serve the HTML page from file
         CROW_ROUTE(app, "/")([]() {
             return crow::response(loadHTML("../src/templates/index.html"));
         });
-        #if DEBUG // TODO: remove eventually
-        const ControlBox::Mode modes[] = {ControlBox::Mode::BLINK, ControlBox::Mode::BREATH, ControlBox::Mode::DIM, ControlBox::Mode::DETECT};
-        int index = 0;
-        Timer myTimer(std::chrono::milliseconds(5000));
-        controlBox.setBrightness(75);
-        #endif
+
+        // Handle the form submission
+        CROW_ROUTE(app, "/update").methods(crow::HTTPMethod::POST)([](const crow::request& req) {
+            auto body = crow::json::load(req.body);
+            if (!body) {
+                return crow::response(400);
+            }
+
+            // if (!body["brightness"].is_int() || !body["mode"].is_string()) {
+            //     return crow::response(400, "Invalid data structure");
+            // }
+
+            int newBrightness = body["brightness"].i();
+            std::string newMode = body["mode"].s();
+            std::cout << "New brightness: " << newBrightness << ", new mode: " << newMode << std::endl;
+            controlBox.setBrightness(newBrightness);
+            controlBox.setMode(newMode);
+
+            return crow::response(200);
+        });
 
         // Start the webserver
-        app.port(5004).multithreaded().run();
+        app.port(5000).multithreaded().run();
 
-        while (true) {
-            controlBox.doMode();
-            #if DEBUG
-            if (myTimer.hasElapsed()) {
-                myTimer.reset();
-                ControlBox::Mode newMode = modes[index];
-                index++;
-                if (index >= 4) index = 0;
-                controlBox.setMode(newMode);
-            }
-            #endif
-        }
+        // Clean up on exit
+        controlBoxThreadRunner.join();
     }
     catch (const std::exception& ex) {
         fprintf(stderr, "Error: %s\n", ex.what());

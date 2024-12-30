@@ -11,21 +11,27 @@
 
             const brightness = document.getElementById("brightness").value;
             const mode = document.getElementById("mode").value;
+            var bodyData = {
+                "brightness" : brightness,
+                "mode" : mode
+            };
 
             // Send data to the server via POST
-            const response = await fetch('/update', {
+            fetch('/update', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                 },
-                body: `brightness=${brightness}&mode=${mode}`
-            });
-
-            if (response.ok) {
+                body: JSON.stringify(bodyData)
+            })
+            .then(response => {
+                if (response.ok) {
                 alert("LED settings updated successfully!");
-            } else {
-                alert("Failed to update LED settings.");
-            }
+                } else {
+                    alert("Failed to update LED settings.");
+                }
+            })
+            .catch(error => console.error('Error: ', error));
         }
     </script>
 </head>

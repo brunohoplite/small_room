@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <cmath>
+#include <unordered_map>
 #include "control_box.hpp"
 
 
@@ -41,8 +42,9 @@ void ControlBox::doMode(void)
     }
 }
 
-void ControlBox::setMode(const Mode newMode)
+void ControlBox::setMode(const std::string& modeStr)
 {
+    ControlBox::Mode newMode = stringToMode(modeStr);
     currentMode_ = newMode;
     switch (newMode)
     {
@@ -99,7 +101,7 @@ void ControlBox::doBlink(void)
 
 void ControlBox::doBreath(void)
 {
-    int newDt = toggle_ ? increasingDt_[stepIndex_] : decreasingDt_[stepIndex_];
+    int newDt = toggle_ ? decreasingDt_[stepIndex_] : increasingDt_[stepIndex_];
     ledStrip_.setDutyCycle(newDt);
     stepIndex_++;
     if (stepIndex_ >= STEPS)
@@ -117,4 +119,21 @@ void ControlBox::prepareBreath(void)
         increasingDt_[i] = (int)brightness;
         decreasingDt_[STEPS - i - 1] = (int)brightness;
     }
+}
+
+ControlBox::Mode ControlBox::stringToMode(const std::string& modeStr)
+{
+    static std::unordered_map<std::string, Mode> map = {
+        {"Detector", Mode::DETECT},
+        {"Dimmer", Mode::DIM},
+        {"Blink", Mode::BLINK},
+        {"Breath", Mode::BREATH}
+   };
+
+   auto it = map.find(modeStr);
+   if (it == map.end()) {
+        throw std::invalid_argument("Invalid mode string: " + modeStr);
+   }
+
+   return it->second;
 }
